@@ -28,7 +28,7 @@ const Header = () => {
   
   // This would be connected to auth state in production
   const isLoggedIn = false;
-  const userType = "buyer";
+  const userType: UserRole = "buyer";
   
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

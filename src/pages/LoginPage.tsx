@@ -56,7 +56,7 @@ const LoginPage = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       
       // For demo purposes, we'll navigate to a page based on user role
-      const userRole = "buyer"; // or "seller"
+      const userRole: UserRole = "buyer"; // or "seller"
       
       if (userRole === "seller") {
         navigate("/seller/dashboard");
