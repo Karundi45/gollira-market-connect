@@ -25,6 +25,9 @@ import PoliciesPage from "./pages/PoliciesPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import OrderHistoryPage from "./pages/OrderHistoryPage";
+import PaymentMethodsPage from "./pages/PaymentMethodsPage";
+import AddressBookPage from "./pages/AddressBookPage";
 
 // Create a new query client instance
 const queryClient = new QueryClient({
@@ -62,8 +65,9 @@ const App = () => (
               {/* Protected Buyer Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/account" element={<AccountPage />} />
-                <Route path="/orders" element={<AccountPage />} />
-                <Route path="/settings" element={<AccountPage />} />
+                <Route path="/orders" element={<OrderHistoryPage />} />
+                <Route path="/payment-methods" element={<PaymentMethodsPage />} />
+                <Route path="/address-book" element={<AddressBookPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
               </Route>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -13,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "@/hooks/use-toast"; // Fixed import
+import { toast } from "@/hooks/use-toast";
 
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/layout/Layout";
@@ -29,7 +28,7 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const AccountPage = () => {
-  const { user, userRole, isVerified, updateProfile } = useAuth();
+  const { user, userRole, isVerified, updateProfile, signOut } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [profileData, setProfileData] = useState<any>(null);
   const navigate = useNavigate();
@@ -94,6 +93,15 @@ const AccountPage = () => {
       console.error("Error updating profile:", error);
     }
   }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -167,19 +175,23 @@ const AccountPage = () => {
               </CardHeader>
               <CardContent>
                 <nav className="flex flex-col space-y-1">
-                  <Button variant="ghost" className="justify-start">
-                    Profile Settings
+                  <Button variant="ghost" className="justify-start" asChild>
+                    <Link to="/account">Profile Settings</Link>
                   </Button>
-                  <Button variant="ghost" className="justify-start">
-                    Order History
+                  <Button variant="ghost" className="justify-start" asChild>
+                    <Link to="/orders">Order History</Link>
                   </Button>
-                  <Button variant="ghost" className="justify-start">
-                    Payment Methods
+                  <Button variant="ghost" className="justify-start" asChild>
+                    <Link to="/payment-methods">Payment Methods</Link>
                   </Button>
-                  <Button variant="ghost" className="justify-start">
-                    Address Book
+                  <Button variant="ghost" className="justify-start" asChild>
+                    <Link to="/address-book">Address Book</Link>
                   </Button>
-                  <Button variant="ghost" className="justify-start text-red-600 hover:text-red-600 hover:bg-red-50">
+                  <Button 
+                    variant="ghost" 
+                    className="justify-start text-red-600 hover:text-red-600 hover:bg-red-50"
+                    onClick={handleSignOut}
+                  >
                     Sign Out
                   </Button>
                 </nav>
