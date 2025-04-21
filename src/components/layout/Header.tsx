@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { 
   ShoppingCart, 
@@ -9,7 +9,10 @@ import {
   X, 
   LogIn,
   User,
-  Package
+  Package,
+  LogOut,
+  Settings,
+  ShoppingBag
 } from "lucide-react";
 import { 
   Sheet,
@@ -17,20 +20,47 @@ import {
   SheetTrigger,
   SheetClose
 } from "../ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Input } from "../ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { UserRole } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 const Header = () => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { user, userRole, signOut } = useAuth();
   
-  // In production, this will connect to auth state
-  const isLoggedIn = false;
-
-  // For now, to silence TypeScript errors and reflect possible roles, allow changing userType for UI testing
-  const [userType] = useState<UserRole>("buyer"); // Change to "seller" to see seller experience, or fetch from auth state when available.
+  const getUserInitials = () => {
+    if (!user?.email) return "U";
+    return user.email.charAt(0).toUpperCase();
+  };
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Sign out error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error signing out",
+        description: "An error occurred while signing out. Please try again.",
+      });
+    }
+  };
   
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -77,6 +107,31 @@ const Header = () => {
                       Policies
                     </Link>
                   </SheetClose>
+                  
+                  {user && (
+                    <>
+                      <div className="h-px bg-border my-2"></div>
+                      {userRole === "seller" && (
+                        <SheetClose asChild>
+                          <Link to="/seller/dashboard" className="block px-2 py-1 text-lg font-medium">
+                            Seller Dashboard
+                          </Link>
+                        </SheetClose>
+                      )}
+                      <SheetClose asChild>
+                        <Link to={userRole === "seller" ? "/seller/account" : "/account"} className="block px-2 py-1 text-lg font-medium">
+                          Account
+                        </Link>
+                      </SheetClose>
+                      <button 
+                        onClick={handleSignOut}
+                        className="flex items-center px-2 py-1 text-lg font-medium text-red-600 hover:bg-red-50 rounded-md"
+                      >
+                        <LogOut className="mr-2 h-5 w-5" />
+                        Sign Out
+                      </button>
+                    </>
+                  )}
                 </nav>
               </SheetContent>
             </Sheet>
@@ -162,16 +217,61 @@ const Header = () => {
               </Link>
 
               {/* Account Button */}
-              {isLoggedIn ? (
-                <Link to={userType === "seller" ? "/seller/dashboard" : "/account"}>
-                  <Button variant="ghost" size="icon">
-                    {userType === "seller" ? (
-                      <Package className="h-5 w-5" />
-                    ) : (
-                      <User className="h-5 w-5" />
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src="" />
+                        <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem asChild>
+                        <Link to="/account" className="cursor-pointer">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Profile</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/orders" className="cursor-pointer">
+                          <ShoppingBag className="mr-2 h-4 w-4" />
+                          <span>Orders</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/settings" className="cursor-pointer">
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Settings</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    
+                    {userRole === "seller" && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem asChild>
+                            <Link to="/seller/dashboard" className="cursor-pointer">
+                              <Package className="mr-2 h-4 w-4" />
+                              <span>Seller Dashboard</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </>
                     )}
-                  </Button>
-                </Link>
+                    
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="text-red-600 cursor-pointer">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sign out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Link to="/login">
                   <Button variant="default" size="sm" className="hidden sm:flex">

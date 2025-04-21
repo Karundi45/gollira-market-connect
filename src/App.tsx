@@ -4,8 +4,16 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import AccountPage from "./pages/AccountPage";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
+import DashboardPage from "./pages/seller/DashboardPage";
+import VerificationPage from "./pages/seller/VerificationPage";
 import NotFound from "./pages/NotFound";
 import HomePage from "./pages/HomePage";
 import ProductsPage from "./pages/ProductsPage";
@@ -19,25 +27,47 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/sellers" element={<SellersPage />} />
-          <Route path="/policies" element={<PoliciesPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/sellers" element={<SellersPage />} />
+            <Route path="/policies" element={<PoliciesPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+            {/* Protected Buyer Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/account" element={<AccountPage />} />
+              <Route path="/orders" element={<AccountPage />} />
+              <Route path="/settings" element={<AccountPage />} />
+              <Route path="/checkout" element={<CartPage />} />
+            </Route>
+
+            {/* Protected Seller Routes */}
+            <Route element={<ProtectedRoute requiredRole="seller" />}>
+              <Route path="/seller/dashboard" element={<DashboardPage />} />
+              <Route path="/seller/verification" element={<VerificationPage />} />
+              <Route path="/seller/account" element={<AccountPage />} />
+            </Route>
+            
+            {/* Catch All */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

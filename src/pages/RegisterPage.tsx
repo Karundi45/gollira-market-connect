@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,11 +17,17 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { UserRole } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Form validation schema
 const registerSchema = z.object({
+  username: z.string()
+    .min(3, "Username must be at least 3 characters")
+    .max(20, "Username must be at most 20 characters")
+    .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores, and hyphens"),
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
   password: z
@@ -43,40 +49,50 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { signUp } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  const defaultRole = searchParams.get("role") as UserRole || "buyer";
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      username: "",
       name: "",
       email: "",
       password: "",
       confirmPassword: "",
-      role: "buyer",
+      role: defaultRole,
     },
   });
+
+  useEffect(() => {
+    // Update the role when the query parameter changes
+    form.setValue("role", defaultRole);
+  }, [defaultRole, form]);
 
   const onSubmit = async (data: RegisterFormValues) => {
     setError(null);
     setIsLoading(true);
     
     try {
-      // This would connect to your auth API in production
-      console.log("Registration data:", data);
-      
-      // Simulating API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await signUp(
+        data.email,
+        data.password,
+        data.username,
+        data.name,
+        data.role
+      );
       
       // Navigate based on the selected role
-      if (data.role === "seller") {
-        navigate("/seller/onboarding");
-      } else {
-        navigate("/login?registered=true");
-      }
-    } catch (err) {
+      navigate("/login?registered=true");
+    } catch (err: any) {
       console.error("Registration error:", err);
-      setError("An error occurred during registration. Please try again.");
+      setError(err.message || "An error occurred during registration. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -103,6 +119,23 @@ const RegisterPage = () => {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="johndoe" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
                     name="name"
                     render={({ field }) => (
                       <FormItem>
@@ -117,6 +150,7 @@ const RegisterPage = () => {
                       </FormItem>
                     )}
                   />
+                  
                   <FormField
                     control={form.control}
                     name="email"
@@ -137,6 +171,7 @@ const RegisterPage = () => {
                       </FormItem>
                     )}
                   />
+                  
                   <FormField
                     control={form.control}
                     name="password"
@@ -144,16 +179,33 @@ const RegisterPage = () => {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="••••••••" 
-                            type="password" 
-                            {...field} 
-                          />
+                          <div className="relative">
+                            <Input 
+                              placeholder="••••••••" 
+                              type={showPassword ? "text" : "password"}
+                              className="pr-10" 
+                              {...field} 
+                            />
+                            <Button 
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-0 top-0 h-full"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                  
                   <FormField
                     control={form.control}
                     name="confirmPassword"
@@ -161,16 +213,33 @@ const RegisterPage = () => {
                       <FormItem>
                         <FormLabel>Confirm Password</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="••••••••" 
-                            type="password" 
-                            {...field} 
-                          />
+                          <div className="relative">
+                            <Input 
+                              placeholder="••••••••" 
+                              type={showConfirmPassword ? "text" : "password"}
+                              className="pr-10" 
+                              {...field} 
+                            />
+                            <Button 
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-0 top-0 h-full"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                              {showConfirmPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                  
                   <FormField
                     control={form.control}
                     name="role"
@@ -205,12 +274,20 @@ const RegisterPage = () => {
                       </FormItem>
                     )}
                   />
+                  
                   <Button 
                     type="submit" 
                     className="w-full"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Creating account..." : "Create account"}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating account...
+                      </>
+                    ) : (
+                      "Create account"
+                    )}
                   </Button>
                 </form>
               </Form>
