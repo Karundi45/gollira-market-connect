@@ -26,10 +26,11 @@ const Header = () => {
   const isMobile = useIsMobile();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   
-  // This would be connected to auth state in production
+  // In production, this will connect to auth state
   const isLoggedIn = false;
-  // Explicitly define as UserRole to ensure TypeScript understands the possible values
-  const userType: UserRole = "buyer";
+
+  // For now, to silence TypeScript errors and reflect possible roles, allow changing userType for UI testing
+  const [userType] = useState<UserRole>("buyer"); // Change to "seller" to see seller experience, or fetch from auth state when available.
   
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
