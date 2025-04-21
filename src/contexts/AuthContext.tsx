@@ -1,8 +1,7 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/toast"; // Import toast function directly
+import { toast } from "@/hooks/use-toast";
 import { UserRole } from "@/types";
 
 interface AuthContextType {
@@ -85,7 +84,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (data) {
       setUserRole(data.type as UserRole || "buyer");
-      setIsVerified(data.verified || false);
+      // Check if verified field exists, if not default to false
+      setIsVerified(data.verified === true);
     }
   };
 

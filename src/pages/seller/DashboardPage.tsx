@@ -36,7 +36,16 @@ const DashboardPage = () => {
       
       try {
         setIsLoading(true);
-        // Using the type-safe way of querying Supabase
+        // For now, let's use a mock array since the products table doesn't exist yet
+        // We'll update this once the products table is created
+        
+        // Mock data for development
+        setProducts([
+          // Sample products - replace with actual data when table exists
+        ]);
+        
+        /*
+        // This code will be uncommented when products table exists
         const { data, error } = await supabase
           .from('products')
           .select('*')
@@ -45,6 +54,7 @@ const DashboardPage = () => {
         if (error) throw error;
         
         setProducts(data || []);
+        */
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {

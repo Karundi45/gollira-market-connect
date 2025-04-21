@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/hooks/use-toast"; // Fixed import
 import Layout from "@/components/layout/Layout";
 
 const formSchema = z.object({

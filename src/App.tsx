@@ -23,7 +23,15 @@ import SellersPage from "./pages/SellersPage";
 import PoliciesPage from "./pages/PoliciesPage";
 import CartPage from "./pages/CartPage";
 
-const queryClient = new QueryClient();
+// Create a new query client instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

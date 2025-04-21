@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/hooks/use-toast"; // Fixed import
 
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/layout/Layout";
