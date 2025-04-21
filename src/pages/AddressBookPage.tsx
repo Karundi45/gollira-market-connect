@@ -117,9 +117,17 @@ const AddressBookPage = () => {
 
   const onSubmit = (values: AddressFormValues) => {
     // For a new address, generate an ID
-    const newAddress = {
+    const newAddress: Address & { id: string; isDefault: boolean } = {
       id: `addr${addresses.length + 1}`,
-      ...values,
+      fullName: values.fullName,
+      companyName: values.companyName,
+      street: values.street,
+      city: values.city,
+      state: values.state,
+      postalCode: values.postalCode,
+      country: values.country,
+      phone: values.phone,
+      isDefault: values.isDefault,
     };
     
     // If this is the first address or it's set as default
