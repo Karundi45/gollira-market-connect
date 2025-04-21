@@ -30,6 +30,59 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          discount_price: number | null
+          id: string
+          images: string[] | null
+          name: string
+          price: number
+          quantity: number | null
+          seller_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          discount_price?: number | null
+          id?: string
+          images?: string[] | null
+          name: string
+          price: number
+          quantity?: number | null
+          seller_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          discount_price?: number | null
+          id?: string
+          images?: string[] | null
+          name?: string
+          price?: number
+          quantity?: number | null
+          seller_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

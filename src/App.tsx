@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -30,8 +29,9 @@ import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import OrderHistoryPage from "./pages/OrderHistoryPage";
 import PaymentMethodsPage from "./pages/PaymentMethodsPage";
 import AddressBookPage from "./pages/AddressBookPage";
+import ProductListPage from "./pages/seller/ProductListPage";
+import NewProductPage from "./pages/seller/NewProductPage";
 
-// Create a new query client instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -81,6 +81,9 @@ const App = () => (
                 <Route path="/seller/dashboard" element={<DashboardPage />} />
                 <Route path="/seller/verification" element={<VerificationPage />} />
                 <Route path="/seller/account" element={<AccountPage />} />
+                <Route path="/seller/products" element={<ProductListPage />} />
+                <Route path="/seller/products/new" element={<NewProductPage />} />
+                <Route path="/seller/products/:id/edit" element={<div className="container py-12"><h2 className="text-2xl font-bold">Edit Product (Coming Soon)</h2></div>} />
               </Route>
               
               {/* Catch All */}

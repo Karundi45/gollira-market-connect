@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,35 +32,20 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       if (!user) return;
-      
       try {
         setIsLoading(true);
-        // For now, let's use a mock array since the products table doesn't exist yet
-        // We'll update this once the products table is created
-        
-        // Mock data for development
-        setProducts([
-          // Sample products - replace with actual data when table exists
-        ]);
-        
-        /*
-        // This code will be uncommented when products table exists
         const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('seller_id', user.id);
-          
+          .from("products")
+          .select("*")
+          .eq("seller_id", user.id);
         if (error) throw error;
-        
         setProducts(data || []);
-        */
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    
     fetchProducts();
   }, [user]);
   
