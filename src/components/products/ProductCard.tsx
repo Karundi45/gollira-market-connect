@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/contexts/CartContext";
+import { useState } from "react";
 
 interface ProductCardProps {
   id: string;
@@ -34,13 +36,33 @@ const ProductCard = ({
   const currencySymbol = currency === "USD" ? "$" : currency;
   const isDiscounted = !!discountPrice && discountPrice < price;
   const displayPrice = isDiscounted ? discountPrice : price;
-  
+  const { addToCart } = useCart();
+  const [adding, setAdding] = useState(false);
+
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "decimal",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(value);
+  };
+
+  const handleAddToCart = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault(); // Prevent Link navigation when button clicked
+    setAdding(true);
+    addToCart({
+      productId: id,
+      name,
+      price,
+      discountPrice,
+      quantity: 1,
+      image,
+      sellerId: "",
+      sellerName,
+    });
+    setTimeout(() => setAdding(false), 600); // fake loading for better UX, real API would use a promise
   };
 
   return (
@@ -89,9 +111,14 @@ const ProductCard = ({
         </CardContent>
       </Link>
       <CardFooter className="p-4 pt-0">
-        <Button variant="outline" className="w-full gap-2">
+        <Button 
+          variant="outline" 
+          className="w-full gap-2" 
+          onClick={handleAddToCart}
+          disabled={adding}
+        >
           <ShoppingCart className="h-4 w-4" />
-          Add to Cart
+          {adding ? "Adding..." : "Add to Cart"}
         </Button>
       </CardFooter>
     </Card>
@@ -99,3 +126,4 @@ const ProductCard = ({
 };
 
 export default ProductCard;
+
