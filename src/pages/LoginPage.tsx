@@ -9,18 +9,18 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserRole } from "@/types";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn } = useAuth();
+  const { signIn, isLoading: authLoading } = useAuth();
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userRole, setUserRole] = useState<UserRole>("buyer");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
   
   const from = (location.state as any)?.from || "/";
 
@@ -41,7 +41,12 @@ const LoginPage = () => {
       navigate(from, { replace: true });
     } catch (error: any) {
       console.error("Login error:", error);
-      // Error is already handled by the signIn function, no need to set it here
+      // Display specific error message from the API if available
+      if (error.message) {
+        setError(error.message);
+      } else {
+        setError("Login failed. Please check your credentials and try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -95,37 +100,17 @@ const LoginPage = () => {
                       Forgot password?
                     </Link>
                   </div>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      autoComplete="current-password"
-                      disabled={isLoading}
-                      className="pr-10"
-                    />
-                    <Button 
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                      <span className="sr-only">
-                        {showPassword ? "Hide password" : "Show password"}
-                      </span>
-                    </Button>
-                  </div>
+                  <PasswordInput
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    disabled={isLoading}
+                  />
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full" disabled={isLoading || authLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -162,6 +147,13 @@ const LoginPage = () => {
               </p>
             </TabsContent>
           </Tabs>
+        </div>
+        
+        {/* Demo credentials for testing */}
+        <div className="text-center text-sm text-gray-500">
+          <p>For demonstration purposes:</p>
+          <p>Email: demo@example.com</p>
+          <p>Password: demo1234</p>
         </div>
       </div>
     </div>

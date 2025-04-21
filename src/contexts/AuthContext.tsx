@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // First, set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -58,6 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Then check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -71,29 +74,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
 
-    if (error) {
-      console.error("Error fetching user profile:", error);
-      return;
-    }
-
-    if (data) {
-      setUserRole(data.type as UserRole || "buyer");
-      
-      // Instead of directly accessing 'verified', check if it exists in the data
-      // or set a default value based on the implementation needs
-      setIsVerified(false); // Default to false
-      
-      // If there's a 'verified' column in the database but not in the TypeScript type yet,
-      // we can safely check it using bracket notation and type assertion
-      if ('verified' in data) {
-        setIsVerified(Boolean((data as any).verified));
+      if (error) {
+        console.error("Error fetching user profile:", error);
+        return;
       }
+
+      if (data) {
+        setUserRole(data.type as UserRole || "buyer");
+        
+        // Instead of directly accessing 'verified', check if it exists in the data
+        // or set a default value based on the implementation needs
+        setIsVerified(false); // Default to false
+        
+        // If there's a 'verified' column in the database but not in the TypeScript type yet,
+        // we can safely check it using bracket notation and type assertion
+        if ('verified' in data) {
+          setIsVerified(Boolean((data as any).verified));
+        }
+      } else {
+        console.log("No profile found for user:", userId);
+      }
+    } catch (err) {
+      console.error("Unexpected error in fetchUserProfile:", err);
     }
   };
 
@@ -140,13 +149,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Sign in error:", error);
+        throw error;
+      }
 
       toast({
         title: "Welcome back!",
         description: "You've successfully signed in.",
       });
     } catch (error: any) {
+      console.error("Sign in caught error:", error);
       toast({
         variant: "destructive",
         title: "Sign in failed",
