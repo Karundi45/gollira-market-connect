@@ -84,9 +84,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (data) {
       setUserRole(data.type as UserRole || "buyer");
-      // The 'verified' field might not exist in the profiles table
-      // Check if the field exists in a type-safe way
-      setIsVerified(Boolean(data.verified));
+      
+      // Instead of directly accessing 'verified', check if it exists in the data
+      // or set a default value based on the implementation needs
+      setIsVerified(false); // Default to false
+      
+      // If there's a 'verified' column in the database but not in the TypeScript type yet,
+      // we can safely check it using bracket notation and type assertion
+      if ('verified' in data) {
+        setIsVerified(Boolean((data as any).verified));
+      }
     }
   };
 
