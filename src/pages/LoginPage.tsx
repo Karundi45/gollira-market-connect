@@ -1,213 +1,142 @@
+
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Layout from "@/components/layout/Layout";
+import { toast } from "@/hooks/use-toast";
 import { UserRole } from "@/types";
 
-// Form validation schemas
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  rememberMe: z.boolean().optional(),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-
 const LoginPage = () => {
-  const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [userRole, setUserRole] = useState<UserRole>("buyer");
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      rememberMe: false,
-    },
-  });
-
-  const onSubmit = async (data: LoginFormValues) => {
-    setError(null);
-    setIsLoading(true);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
     
     try {
-      // This would connect to your auth API in production
-      console.log("Login data:", data);
+      setIsLoading(true);
+      // In a real app, this would call an authentication API
+      console.log("Login attempt", { email, password, userRole });
       
-      // Simulating API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // For demo purposes, we'll navigate to a page based on user role
-      const userRole: UserRole = "buyer"; // or "seller"
+      toast({
+        title: "Success",
+        description: "You have successfully logged in",
+      });
       
-      if (userRole === "seller" as UserRole) {
-        navigate("/seller/dashboard");
-      } else {
-        navigate("/");
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      setError("Invalid email or password. Please try again.");
+      // In a real app, you'd redirect to the dashboard or home page
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Invalid email or password",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Layout>
-      <div className="container py-10 flex flex-col items-center">
-        <div className="w-full max-w-md">
-          <Card>
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
-              <CardDescription className="text-center">
-                Log in to your account to continue
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="email" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="email">Email</TabsTrigger>
-                  <TabsTrigger value="phone">Phone</TabsTrigger>
-                </TabsList>
-                <TabsContent value="email">
-                  {error && (
-                    <Alert variant="destructive" className="mb-4">
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="name@example.com" 
-                                type="email" 
-                                autoCapitalize="none" 
-                                autoComplete="email" 
-                                autoCorrect="off" 
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Password</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="••••••••" 
-                                type="password" 
-                                autoComplete="current-password" 
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="flex items-center justify-between">
-                        <FormField
-                          control={form.control}
-                          name="rememberMe"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                              <FormLabel className="text-sm font-medium leading-none">
-                                Remember me
-                              </FormLabel>
-                            </FormItem>
-                          )}
-                        />
-                        <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">
-                          Forgot password?
-                        </Link>
-                      </div>
-                      <Button 
-                        type="submit" 
-                        className="w-full"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? "Logging in..." : "Log in"}
-                      </Button>
-                    </form>
-                  </Form>
-                </TabsContent>
-                <TabsContent value="phone">
-                  <div className="space-y-4">
-                    <div className="text-center text-sm text-muted-foreground">
-                      Phone login coming soon.
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-              
-              <div className="mt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Or continue with
-                    </span>
-                  </div>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold">Welcome Back</h1>
+          <p className="mt-2 text-gray-600">
+            Sign in to your account to continue
+          </p>
+        </div>
+
+        <div className="rounded-lg border bg-white p-6 shadow-sm">
+          <Tabs defaultValue="buyer" className="w-full" onValueChange={(value) => setUserRole(value as UserRole)}>
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="buyer">Buyer</TabsTrigger>
+              <TabsTrigger value="seller">Seller</TabsTrigger>
+            </TabsList>
+            
+            <form onSubmit={handleLogin}>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    disabled={isLoading}
+                  />
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <Button variant="outline" type="button" disabled>
-                    Google
-                  </Button>
-                  <Button variant="outline" type="button" disabled>
-                    Facebook
-                  </Button>
+                <div>
+                  <div className="flex justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm font-medium text-primary hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    disabled={isLoading}
+                  />
                 </div>
+                
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Signing in..." : "Sign in"}
+                </Button>
               </div>
-            </CardContent>
-            <CardFooter className="flex flex-col">
-              <div className="text-center text-sm text-muted-foreground mt-2">
+            </form>
+            
+            <TabsContent value="buyer">
+              <p className="mt-4 text-center text-sm text-gray-600">
                 Don't have an account?{" "}
-                <Link to="/register" className="text-primary underline-offset-4 hover:underline">
-                  Register
+                <Link 
+                  to="/register?role=buyer" 
+                  className="font-medium text-primary hover:underline"
+                >
+                  Sign up
                 </Link>
-              </div>
-            </CardFooter>
-          </Card>
+              </p>
+            </TabsContent>
+            
+            <TabsContent value="seller">
+              <p className="mt-4 text-center text-sm text-gray-600">
+                Want to sell on our platform?{" "}
+                <Link 
+                  to="/register?role=seller" 
+                  className="font-medium text-primary hover:underline"
+                >
+                  Create a seller account
+                </Link>
+              </p>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

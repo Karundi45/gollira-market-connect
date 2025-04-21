@@ -162,9 +162,9 @@ const Header = () => {
 
               {/* Account Button */}
               {isLoggedIn ? (
-                <Link to={userType === "seller" as UserRole ? "/seller/dashboard" : "/account"}>
+                <Link to={userType === "seller" ? "/seller/dashboard" : "/account"}>
                   <Button variant="ghost" size="icon">
-                    {userType === "seller" as UserRole ? (
+                    {userType === "seller" ? (
                       <Package className="h-5 w-5" />
                     ) : (
                       <User className="h-5 w-5" />
