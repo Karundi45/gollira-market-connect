@@ -28,6 +28,7 @@ const Header = () => {
   
   // This would be connected to auth state in production
   const isLoggedIn = false;
+  // Explicitly define as UserRole to ensure TypeScript understands the possible values
   const userType: UserRole = "buyer";
   
   return (
@@ -161,9 +162,9 @@ const Header = () => {
 
               {/* Account Button */}
               {isLoggedIn ? (
-                <Link to={userType === "seller" ? "/seller/dashboard" : "/account"}>
+                <Link to={userType === "seller" as UserRole ? "/seller/dashboard" : "/account"}>
                   <Button variant="ghost" size="icon">
-                    {userType === "seller" ? (
+                    {userType === "seller" as UserRole ? (
                       <Package className="h-5 w-5" />
                     ) : (
                       <User className="h-5 w-5" />

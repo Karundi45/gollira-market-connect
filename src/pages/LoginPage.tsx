@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -58,7 +57,7 @@ const LoginPage = () => {
       // For demo purposes, we'll navigate to a page based on user role
       const userRole: UserRole = "buyer"; // or "seller"
       
-      if (userRole === "seller") {
+      if (userRole === "seller" as UserRole) {
         navigate("/seller/dashboard");
       } else {
         navigate("/");
