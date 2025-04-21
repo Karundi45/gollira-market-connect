@@ -1,4 +1,3 @@
-
 // User types
 export type UserRole = "buyer" | "seller" | "admin";
 

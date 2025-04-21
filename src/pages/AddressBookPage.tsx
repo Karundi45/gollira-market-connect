@@ -116,7 +116,7 @@ const AddressBookPage = () => {
   };
 
   const onSubmit = (values: AddressFormValues) => {
-    // For a new address, generate an ID
+    // For a new address, generate an ID and ensure all required fields are present
     const newAddress: Address & { id: string; isDefault: boolean } = {
       id: `addr${addresses.length + 1}`,
       fullName: values.fullName,
