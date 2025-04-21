@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { z } from "zod";
@@ -36,14 +35,16 @@ const addressSchema = z.object({
 
 type AddressFormValues = z.infer<typeof addressSchema>;
 
+type AddressWithIdAndDefault = Address & { id: string; isDefault: boolean };
+
 const AddressBookPage = () => {
   const { user } = useAuth();
-  
-  // Mock addresses data for demonstration
-  const [addresses, setAddresses] = useState<(Address & { id: string; isDefault: boolean })[]>([
+
+  const [addresses, setAddresses] = useState<AddressWithIdAndDefault[]>([
     {
       id: "addr1",
       fullName: "John Doe",
+      companyName: "",
       street: "123 Main St",
       city: "Anytown",
       state: "California",
@@ -55,6 +56,7 @@ const AddressBookPage = () => {
     {
       id: "addr2",
       fullName: "John Doe",
+      companyName: "",
       street: "456 Park Ave",
       city: "Othertown",
       state: "New York",
@@ -89,7 +91,7 @@ const AddressBookPage = () => {
         isDefault: address.id === id,
       }))
     );
-    
+
     toast({
       title: "Default address updated",
       description: "Your default shipping address has been updated.",
@@ -97,7 +99,6 @@ const AddressBookPage = () => {
   };
 
   const handleDeleteAddress = (id: string) => {
-    // Don't allow deletion of the default address
     if (addresses.find((addr) => addr.id === id)?.isDefault) {
       toast({
         variant: "destructive",
@@ -106,9 +107,9 @@ const AddressBookPage = () => {
       });
       return;
     }
-    
+
     setAddresses(addresses.filter((address) => address.id !== id));
-    
+
     toast({
       title: "Address removed",
       description: "The address has been removed from your address book.",
@@ -116,11 +117,10 @@ const AddressBookPage = () => {
   };
 
   const onSubmit = (values: AddressFormValues) => {
-    // For a new address, generate an ID and ensure all required fields are present
-    const newAddress: Address & { id: string; isDefault: boolean } = {
+    const newAddress: AddressWithIdAndDefault = {
       id: `addr${addresses.length + 1}`,
       fullName: values.fullName,
-      companyName: values.companyName,
+      companyName: values.companyName || "",
       street: values.street,
       city: values.city,
       state: values.state,
@@ -129,10 +129,8 @@ const AddressBookPage = () => {
       phone: values.phone,
       isDefault: values.isDefault,
     };
-    
-    // If this is the first address or it's set as default
+
     if (addresses.length === 0 || values.isDefault) {
-      // Set all other addresses to non-default
       const updatedAddresses = addresses.map((addr) => ({
         ...addr,
         isDefault: false,
@@ -141,11 +139,10 @@ const AddressBookPage = () => {
     } else {
       setAddresses([...addresses, newAddress]);
     }
-    
-    // Reset form
+
     form.reset();
     setShowAddForm(false);
-    
+
     toast({
       title: "Address added",
       description: "Your new address has been added to your address book.",
@@ -161,7 +158,6 @@ const AddressBookPage = () => {
             <Link to="/account">Back to Account</Link>
           </Button>
         </div>
-        
         <div className="space-y-6">
           {addresses.map((address) => (
             <Card key={address.id}>
@@ -212,7 +208,6 @@ const AddressBookPage = () => {
               </CardContent>
             </Card>
           ))}
-          
           {!showAddForm && (
             <Button
               onClick={() => setShowAddForm(true)}
@@ -223,7 +218,6 @@ const AddressBookPage = () => {
               Add a new address
             </Button>
           )}
-          
           {showAddForm && (
             <Card>
               <CardHeader>
@@ -245,7 +239,6 @@ const AddressBookPage = () => {
                         </FormItem>
                       )}
                     />
-                    
                     <FormField
                       control={form.control}
                       name="companyName"
@@ -259,7 +252,6 @@ const AddressBookPage = () => {
                         </FormItem>
                       )}
                     />
-                    
                     <FormField
                       control={form.control}
                       name="street"
@@ -273,7 +265,6 @@ const AddressBookPage = () => {
                         </FormItem>
                       )}
                     />
-                    
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -288,7 +279,6 @@ const AddressBookPage = () => {
                           </FormItem>
                         )}
                       />
-                      
                       <FormField
                         control={form.control}
                         name="state"
@@ -303,7 +293,6 @@ const AddressBookPage = () => {
                         )}
                       />
                     </div>
-                    
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -318,7 +307,6 @@ const AddressBookPage = () => {
                           </FormItem>
                         )}
                       />
-                      
                       <FormField
                         control={form.control}
                         name="country"
@@ -333,7 +321,6 @@ const AddressBookPage = () => {
                         )}
                       />
                     </div>
-                    
                     <FormField
                       control={form.control}
                       name="phone"
@@ -347,7 +334,6 @@ const AddressBookPage = () => {
                         </FormItem>
                       )}
                     />
-                    
                     <FormField
                       control={form.control}
                       name="isDefault"
@@ -365,12 +351,11 @@ const AddressBookPage = () => {
                         </FormItem>
                       )}
                     />
-                    
                     <div className="flex space-x-2 pt-2">
                       <Button type="submit" className="flex-1">Add Address</Button>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
+                      <Button
+                        type="button"
+                        variant="outline"
                         onClick={() => setShowAddForm(false)}
                         className="flex-1"
                       >
