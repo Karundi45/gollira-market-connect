@@ -84,8 +84,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (data) {
       setUserRole(data.type as UserRole || "buyer");
-      // Check if verified field exists, if not default to false
-      setIsVerified(data.verified === true);
+      // The 'verified' field might not exist in the profiles table
+      // Check if the field exists in a type-safe way
+      setIsVerified(Boolean(data.verified));
     }
   };
 

@@ -49,6 +49,7 @@ export interface Cart {
   subtotal: number;
   tax: number;
   shipping: number;
+  discount?: number;
   total: number;
 }
 
@@ -60,6 +61,7 @@ export interface Order {
   subtotal: number;
   tax: number;
   shipping: number;
+  discount?: number;
   total: number;
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   paymentMethod: string;

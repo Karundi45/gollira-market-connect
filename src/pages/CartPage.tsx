@@ -1,77 +1,53 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Minus, Plus, ArrowRight } from "lucide-react";
-
-// Mock cart data
-const initialCartItems = [
-  {
-    id: "1",
-    name: "Premium Wireless Keyboard",
-    image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=300&h=300&fit=crop",
-    price: 89.99,
-    quantity: 1,
-    seller: "TechGlobal Solutions"
-  },
-  {
-    id: "2",
-    name: "Ergonomic Office Chair",
-    image: "https://images.unsplash.com/photo-1596162954151-cdcb4c0f70a8?w=300&h=300&fit=crop",
-    price: 249.99,
-    quantity: 2,
-    seller: "Office Comfort Pro"
-  },
-  {
-    id: "3",
-    name: "LED Desk Lamp with Wireless Charging",
-    image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop",
-    price: 59.99,
-    quantity: 1,
-    seller: "Home Innovations"
-  }
-];
+import { Trash2, Minus, Plus, ArrowRight, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const { cart, updateQuantity, removeFromCart, applyPromoCode } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [promoCode, setPromoCode] = useState("");
-  const [promoApplied, setPromoApplied] = useState(false);
-  
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    
-    setCartItems(cartItems.map(item => 
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    ));
-  };
-  
-  const removeItem = (id: string) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-  };
-  
-  const applyPromo = () => {
-    if (promoCode.toLowerCase() === "discount10") {
-      setPromoApplied(true);
+
+  const handleApplyPromo = () => {
+    if (promoCode) {
+      applyPromoCode(promoCode);
     }
   };
   
-  // Calculate totals
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const discount = promoApplied ? subtotal * 0.1 : 0;
-  const shipping = subtotal > 100 ? 0 : 15;
-  const total = subtotal - discount + shipping;
+  const handleCheckout = () => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to proceed to checkout.",
+        variant: "destructive"
+      });
+      navigate("/login", { state: { redirect: "/checkout" } });
+    } else {
+      navigate("/checkout");
+    }
+  };
   
   return (
     <Layout>
       <div className="container py-12">
         <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
         
-        {cartItems.length === 0 ? (
+        {cart.items.length === 0 ? (
           <div className="text-center py-12">
+            <div className="mb-6 flex justify-center">
+              <ShoppingCart className="h-16 w-16 text-muted-foreground" />
+            </div>
             <h2 className="text-xl font-semibold mb-4">Your cart is empty</h2>
-            <p className="text-gray-600 mb-6">Looks like you haven't added any products to your cart yet.</p>
+            <p className="text-gray-600 mb-6">
+              Looks like you haven't added any products to your cart yet.
+            </p>
             <Link to="/products">
               <Button size="lg">
                 Browse Products
@@ -91,8 +67,8 @@ const CartPage = () => {
                 </div>
                 
                 <div className="divide-y">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="p-4">
+                  {cart.items.map((item) => (
+                    <div key={item.productId} className="p-4">
                       <div className="grid grid-cols-12 gap-4 items-center">
                         <div className="col-span-6 md:col-span-7">
                           <div className="flex items-center">
@@ -105,11 +81,21 @@ const CartPage = () => {
                             </div>
                             <div className="ml-4">
                               <h3 className="font-medium">{item.name}</h3>
-                              <p className="text-sm text-muted-foreground">Sold by: {item.seller}</p>
-                              <p className="text-sm font-medium">${item.price.toFixed(2)}</p>
+                              <p className="text-sm text-muted-foreground">Sold by: {item.sellerName}</p>
+                              <p className="text-sm font-medium">
+                                {item.discountPrice ? (
+                                  <>
+                                    <span className="text-gray-700">${item.discountPrice.toFixed(2)}</span>
+                                    {' '}
+                                    <span className="text-gray-400 line-through">${item.price.toFixed(2)}</span>
+                                  </>
+                                ) : (
+                                  <span>${item.price.toFixed(2)}</span>
+                                )}
+                              </p>
                               <button 
                                 className="text-sm text-red-600 hover:underline mt-1 flex items-center"
-                                onClick={() => removeItem(item.id)}
+                                onClick={() => removeFromCart(item.productId)}
                               >
                                 <Trash2 className="h-3 w-3 mr-1" />
                                 Remove
@@ -124,7 +110,8 @@ const CartPage = () => {
                               variant="ghost" 
                               size="icon" 
                               className="h-8 w-8"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                              disabled={item.quantity <= 1}
                             >
                               <Minus className="h-3 w-3" />
                             </Button>
@@ -133,7 +120,7 @@ const CartPage = () => {
                               variant="ghost" 
                               size="icon" 
                               className="h-8 w-8"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                             >
                               <Plus className="h-3 w-3" />
                             </Button>
@@ -141,7 +128,7 @@ const CartPage = () => {
                         </div>
                         
                         <div className="col-span-3 text-right font-medium">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ${((item.discountPrice || item.price) * item.quantity).toFixed(2)}
                         </div>
                       </div>
                     </div>
@@ -157,29 +144,38 @@ const CartPage = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>${cart.subtotal.toFixed(2)}</span>
                   </div>
                   
-                  {promoApplied && (
+                  {cart.discount && cart.discount > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>Discount (10%)</span>
-                      <span>-${discount.toFixed(2)}</span>
+                      <span>Discount</span>
+                      <span>-${cart.discount.toFixed(2)}</span>
                     </div>
                   )}
                   
                   <div className="flex justify-between">
+                    <span className="text-muted-foreground">Tax</span>
+                    <span>${cart.tax.toFixed(2)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between">
                     <span className="text-muted-foreground">Shipping</span>
-                    <span>{shipping > 0 ? `$${shipping.toFixed(2)}` : 'Free'}</span>
+                    <span>{cart.shipping > 0 ? `$${cart.shipping.toFixed(2)}` : 'Free'}</span>
                   </div>
                   
                   <div className="border-t pt-3 mt-3 flex justify-between font-medium">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>${cart.total.toFixed(2)}</span>
                   </div>
                 </div>
                 
                 <div className="mt-6">
-                  <Button className="w-full">
+                  <Button 
+                    className="w-full" 
+                    onClick={handleCheckout}
+                    disabled={cart.items.length === 0}
+                  >
                     Proceed to Checkout
                   </Button>
                 </div>
@@ -192,17 +188,16 @@ const CartPage = () => {
                     placeholder="Enter code" 
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value)}
-                    disabled={promoApplied}
                   />
                   <Button 
                     variant="outline" 
-                    onClick={applyPromo}
-                    disabled={!promoCode || promoApplied}
+                    onClick={handleApplyPromo}
+                    disabled={!promoCode}
                   >
                     Apply
                   </Button>
                 </div>
-                {promoApplied && (
+                {cart.discount && cart.discount > 0 && (
                   <p className="text-sm text-green-600 mt-2">Promo code applied successfully!</p>
                 )}
               </div>
