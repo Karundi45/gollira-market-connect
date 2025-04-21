@@ -17,9 +17,17 @@ import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  images?: string[];
+}
+
 const DashboardPage = () => {
   const { user, userRole, isVerified } = useAuth();
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
@@ -28,10 +36,11 @@ const DashboardPage = () => {
       
       try {
         setIsLoading(true);
+        // Using the type-safe way of querying Supabase
         const { data, error } = await supabase
-          .from("products")
-          .select("*")
-          .eq("seller_id", user.id);
+          .from('products')
+          .select('*')
+          .eq('seller_id', user.id);
           
         if (error) throw error;
         

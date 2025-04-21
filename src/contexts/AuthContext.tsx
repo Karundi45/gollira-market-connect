@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/toast"; // Import toast function directly
 import { UserRole } from "@/types";
 
 interface AuthContextType {
@@ -37,7 +37,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userRole, setUserRole] = useState<UserRole>("buyer");
   const [isLoading, setIsLoading] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     // First, set up auth state listener
