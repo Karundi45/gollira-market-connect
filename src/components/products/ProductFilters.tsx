@@ -22,15 +22,20 @@ interface FilterState {
   verifiedOnly: boolean;
 }
 
+// Updated precise categories with specific names (matching mock data & user-friendly)
 const categories = [
-  { id: "electronics", label: "Electronics" },
-  { id: "clothing", label: "Clothing" },
-  { id: "furniture", label: "Furniture" },
+  { id: "headphones", label: "Headphones & Audio" },
+  { id: "office-chairs", label: "Office Chairs" },
+  { id: "watches", label: "Watches" },
+  { id: "security-cameras", label: "Security Cameras" },
   { id: "tools", label: "Tools & Equipment" },
-  { id: "office", label: "Office Supplies" },
+  { id: "notebooks", label: "Notebooks & Stationery" },
+  { id: "furniture", label: "Furniture" },
+  { id: "electronics", label: "Electronics" },
+  { id: "office-supplies", label: "Office Supplies" },
   { id: "industrial", label: "Industrial" },
   { id: "automotive", label: "Automotive" },
-  { id: "medical", label: "Medical" },
+  { id: "medical", label: "Medical" }
 ];
 
 const ProductFilters = ({ onFilterChange }: FilterProps) => {
@@ -100,8 +105,6 @@ const ProductFilters = ({ onFilterChange }: FilterProps) => {
           Clear all
         </Button>
       </div>
-
-      {/* Active filters */}
       {(filters.categories.length > 0 || filters.verifiedOnly) && (
         <div className="space-y-2">
           <p className="text-sm font-medium">Active filters:</p>
@@ -112,7 +115,7 @@ const ProductFilters = ({ onFilterChange }: FilterProps) => {
                 variant="secondary"
                 className="flex items-center gap-1"
               >
-                {categories.find(c => c.id === category)?.label}
+                {categories.find(c => c.id === category)?.label || category}
                 <button 
                   className="ml-1 hover:bg-muted rounded-full"
                   onClick={() => handleCategoryChange(category, false)}
@@ -140,7 +143,6 @@ const ProductFilters = ({ onFilterChange }: FilterProps) => {
           </div>
         </div>
       )}
-
       <Accordion type="multiple" defaultValue={["price", "category", "seller"]} className="w-full">
         {/* Price Range */}
         <AccordionItem value="price">
@@ -160,7 +162,6 @@ const ProductFilters = ({ onFilterChange }: FilterProps) => {
             </div>
           </AccordionContent>
         </AccordionItem>
-
         {/* Categories */}
         <AccordionItem value="category">
           <AccordionTrigger>Categories</AccordionTrigger>
@@ -186,7 +187,6 @@ const ProductFilters = ({ onFilterChange }: FilterProps) => {
             </div>
           </AccordionContent>
         </AccordionItem>
-
         {/* Seller Verification */}
         <AccordionItem value="seller">
           <AccordionTrigger>Seller</AccordionTrigger>
@@ -212,3 +212,4 @@ const ProductFilters = ({ onFilterChange }: FilterProps) => {
 };
 
 export default ProductFilters;
+

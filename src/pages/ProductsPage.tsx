@@ -1,9 +1,8 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import ProductCard from "@/components/products/ProductCard";
 import ProductFilters from "@/components/products/ProductFilters";
-import { Button } from "@/components/ui/button"; // Added Button import
+import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -15,7 +14,6 @@ import {
 } from "@/components/ui/pagination";
 import { Product } from "@/types";
 
-// Mock data for products
 const mockProducts: Product[] = [
   {
     id: "1",
@@ -26,7 +24,7 @@ const mockProducts: Product[] = [
     currency: "USD",
     images: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D"],
     quantity: 50,
-    category: "electronics",
+    category: "headphones",
     sellerId: "seller1",
     sellerName: "TechGear Pro",
     sellerVerified: true,
@@ -44,7 +42,7 @@ const mockProducts: Product[] = [
     currency: "USD",
     images: ["https://images.unsplash.com/photo-1503602642458-232111445657?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D"],
     quantity: 35,
-    category: "furniture",
+    category: "office-chairs",
     sellerId: "seller2",
     sellerName: "Comfort Living",
     sellerVerified: true,
@@ -63,7 +61,7 @@ const mockProducts: Product[] = [
     currency: "USD",
     images: ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D"],
     quantity: 25,
-    category: "accessories",
+    category: "watches",
     sellerId: "seller3",
     sellerName: "LuxTime",
     sellerVerified: false,
@@ -81,7 +79,7 @@ const mockProducts: Product[] = [
     currency: "USD",
     images: ["https://images.unsplash.com/photo-1585155770447-2f66e2a397b5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjZ8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D"],
     quantity: 100,
-    category: "electronics",
+    category: "security-cameras",
     sellerId: "seller1",
     sellerName: "TechGear Pro",
     sellerVerified: true,
@@ -118,7 +116,7 @@ const mockProducts: Product[] = [
     currency: "USD",
     images: ["https://images.unsplash.com/photo-1544247341-88c7f00d0c17?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bm90ZWJvb2t8ZW58MHx8MHx8fDA%3D"],
     quantity: 150,
-    category: "office",
+    category: "notebooks",
     sellerId: "seller5",
     sellerName: "Office Essentials",
     sellerVerified: true,
@@ -146,19 +144,15 @@ const ProductsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 6;
 
-  // Apply filters
   const filteredProducts = mockProducts.filter(product => {
-    // Price filter
     const passesPrice = 
       product.price >= filters.priceRange[0] && 
       product.price <= filters.priceRange[1];
     
-    // Category filter
     const passesCategory = 
       filters.categories.length === 0 || 
       filters.categories.includes(product.category);
     
-    // Verified seller filter
     const passesVerified = 
       !filters.verifiedOnly || 
       product.sellerVerified;
@@ -166,7 +160,6 @@ const ProductsPage: React.FC = () => {
     return passesPrice && passesCategory && passesVerified;
   });
 
-  // Calculate pagination
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
@@ -174,7 +167,7 @@ const ProductsPage: React.FC = () => {
 
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   };
 
   return (
@@ -183,22 +176,17 @@ const ProductsPage: React.FC = () => {
         <h1 className="text-3xl font-bold mb-6">Products</h1>
         
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar with filters */}
           <aside className="w-full lg:w-1/4">
             <ProductFilters onFilterChange={handleFilterChange} />
           </aside>
           
-          {/* Main content with products */}
           <main className="w-full lg:w-3/4">
-            {/* Product count and sorting (can be implemented later) */}
             <div className="flex justify-between items-center mb-6">
               <p className="text-sm text-muted-foreground">
                 Showing {currentProducts.length} of {filteredProducts.length} products
               </p>
-              {/* Sorting dropdown can be added here */}
             </div>
             
-            {/* Products grid */}
             {currentProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {currentProducts.map((product) => (
@@ -233,7 +221,6 @@ const ProductsPage: React.FC = () => {
               </div>
             )}
             
-            {/* Pagination */}
             {filteredProducts.length > productsPerPage && (
               <Pagination className="mt-8">
                 <PaginationContent>
@@ -246,7 +233,6 @@ const ProductsPage: React.FC = () => {
                   
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter(page => {
-                      // Show first page, last page, and pages around current page
                       return (
                         page === 1 || 
                         page === totalPages || 
@@ -254,7 +240,6 @@ const ProductsPage: React.FC = () => {
                       );
                     })
                     .map((page, index, array) => {
-                      // Add ellipsis where there are gaps
                       if (index > 0 && array[index - 1] !== page - 1) {
                         return (
                           <React.Fragment key={`ellipsis-${page}`}>
