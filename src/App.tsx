@@ -3,96 +3,24 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { CartProvider } from "@/contexts/CartContext";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-import AccountPage from "./pages/AccountPage";
-import UnauthorizedPage from "./pages/UnauthorizedPage";
-import DashboardPage from "./pages/seller/DashboardPage";
-import VerificationPage from "./pages/seller/VerificationPage";
+import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import HomePage from "./pages/HomePage";
-import ProductsPage from "./pages/ProductsPage";
-import AboutPage from "./pages/AboutPage";
-import ContactPage from "./pages/ContactPage";
-import SellersPage from "./pages/SellersPage";
-import PoliciesPage from "./pages/PoliciesPage";
-import TermsPage from "./pages/policies/TermsPage";
-import PrivacyPage from "./pages/policies/PrivacyPage";
-import CartPage from "./pages/CartPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import OrderConfirmationPage from "./pages/OrderConfirmationPage";
-import OrderHistoryPage from "./pages/OrderHistoryPage";
-import PaymentMethodsPage from "./pages/PaymentMethodsPage";
-import AddressBookPage from "./pages/AddressBookPage";
-import ProductListPage from "./pages/seller/ProductListPage";
-import NewProductPage from "./pages/seller/NewProductPage";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/products" element={<ProductsPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/sellers" element={<SellersPage />} />
-              <Route path="/policies" element={<PoliciesPage />} />
-              <Route path="/policies/terms" element={<TermsPage />} />
-              <Route path="/policies/privacy" element={<PrivacyPage />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
-              <Route path="/unauthorized" element={<UnauthorizedPage />} />
-
-              {/* Protected Buyer Routes */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/account" element={<AccountPage />} />
-                <Route path="/orders" element={<OrderHistoryPage />} />
-                <Route path="/payment-methods" element={<PaymentMethodsPage />} />
-                <Route path="/address-book" element={<AddressBookPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
-              </Route>
-
-              {/* Protected Seller Routes */}
-              <Route element={<ProtectedRoute requiredRole="seller" />}>
-                <Route path="/seller/dashboard" element={<DashboardPage />} />
-                <Route path="/seller/verification" element={<VerificationPage />} />
-                <Route path="/seller/account" element={<AccountPage />} />
-                <Route path="/seller/products" element={<ProductListPage />} />
-                <Route path="/seller/products/new" element={<NewProductPage />} />
-                <Route path="/seller/products/:id/edit" element={<div className="container py-12"><h2 className="text-2xl font-bold">Edit Product (Coming Soon)</h2></div>} />
-              </Route>
-              
-              {/* Catch All */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </CartProvider>
-    </AuthProvider>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 
